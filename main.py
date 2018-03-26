@@ -23,7 +23,7 @@ def make_sentence():
     return f'{preface}[{link_sentence}?](https://i.imgur.com/MDhbuT6.jpg)'
 
 def match(comment):
-    if comment.author != 'let_that_sink_in':
+    if comment.author != config['username']:
         if 'Let that sink in' in comment.body[-50:]:
             return True
     return False
