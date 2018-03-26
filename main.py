@@ -22,13 +22,17 @@ def make_sentence():
     link_sentence = ''.join([query, intention])
     return f'{preface}[{link_sentence}?](https://i.imgur.com/MDhbuT6.jpg)'
 
-def match(comment):
+def match(comment, end_region = 100000):
     if comment.author != config['username']:
-        if 'Let that sink in' in comment.body[-50:]:
+        if 'Let that sink in' in comment.body[(-1 * end_region):]:
             return True
     return False
 
 for comment in reddit.subreddit('all').stream.comments():
     if match(comment):
-        comment.reply(make_sentence())
+        #If phrase in last 50 chars
+        if match(comment, 50):
+            comment.reply(make_sentence())
+        else:
+            comment.reply('>Let that sink in\n\n' + make_sentence())
         print(f'https://www.reddit.com{comment.permalink}')
