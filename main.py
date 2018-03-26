@@ -14,7 +14,8 @@ reddit = praw.Reddit(
 
 def make_sentence():
     sink = random.choice(['it', 'he', 'that sink'])
-    preface = random.choice(['', 'Again? ', '>Let that sink in\n\n'])
+    #preface = random.choice(['', 'Again? ', '>Let that sink in\n\n'])
+    preface = random.choice(['', 'Again? '])
     query = random.choice(['What', 'What the hell', 'What the fuck', 'The hell', 'The fuck'])
     time = random.choice([' now', ' this time', ''])
     intention = random.choice([f' does {sink} want{time}', f' is {sink} doing here{time}'])
@@ -23,7 +24,7 @@ def make_sentence():
 
 def match(comment):
     if comment.author != 'let_that_sink_in':
-        if 'Let that sink in' in comment.body:
+        if 'Let that sink in' in comment.body[-50:]:
             return True
     return False
 
