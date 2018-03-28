@@ -15,24 +15,30 @@ reddit = praw.Reddit(
 def make_sentence():
     sink = random.choice(['it', 'he', 'that sink'])
     #preface = random.choice(['', 'Again? ', '>Let that sink in\n\n'])
-    preface = random.choice(['', 'Again? '])
-    query = random.choice(['What', 'What the hell', 'What the fuck', 'The hell', 'The fuck'])
+    preface = random.choice(['', 'Again? ', 'Seriously? '])
+    what = random.choice(['What', 'What the hell', 'What the fuck', 'The hell', 'The fuck'])
+    where = random.choice(['Where', 'Where the hell', 'Where the fuck', 'The hell', 'The fuck'])
     time = random.choice([' now', ' this time', ''])
-    intention = random.choice([f' does {sink} want{time}', f' is {sink} doing here{time}'])
-    link_sentence = ''.join([query, intention])
+    link_sentence = random.choice([f'{what} does {sink} want{time}', f'{what} is {sink} doing here{time}', f'{where} did that sink come from'])
+    #link_sentence = ''.join([query, intention])
     return f'{preface}[{link_sentence}?](https://i.imgur.com/MDhbuT6.jpg)'
 
-def match(comment, end_region = 100000):
+def match(comment, end_region = 2000):
     if comment.author != config['username']:
         if 'Let that sink in' in comment.body[(-1 * end_region):]:
             return True
     return False
 
-for comment in reddit.subreddit('all').stream.comments():
+def make_comment_if_match(comment):
     if match(comment):
         #If phrase in last 50 chars
         if match(comment, 50):
             comment.reply(make_sentence())
         else:
             comment.reply('>Let that sink in\n\n' + make_sentence())
-        print(f'https://www.reddit.com{comment.permalink}')
+
+for comment in reddit.subreddit('all').stream.comments():
+    try:
+        make_comment_if_match(comment)
+    except praw.exceptions.Forbidden:
+        print(f'403 Forbidden when replying to: https://www.reddit.com{comment.permalink}')
