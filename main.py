@@ -1,6 +1,8 @@
 import praw
+import prawcore
 import toml
 import random
+import functools
 
 config = toml.load('config.toml')
 
@@ -11,6 +13,16 @@ reddit = praw.Reddit(
         username = config['username'],
         password = config['password']
         )
+
+def handle_exceptions(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except (prawcore.exceptions.Forbidden, prawcore.exceptions.ServerError) as error:
+            print(f'Error when calling {func.__name__} ({error}). Resuming...')
+            return wrapper(*args, **kwargs)
+    return wrapper
 
 def make_sentence():
     sink = random.choice(['it', 'he', 'that sink'])
@@ -37,8 +49,12 @@ def make_comment_if_match(comment):
         else:
             comment.reply('>Let that sink in\n\n' + make_sentence())
 
-for comment in reddit.subreddit('all').stream.comments():
-    try:
-        make_comment_if_match(comment)
-    except praw.exceptions.Forbidden:
-        print(f'403 Forbidden when replying to: https://www.reddit.com{comment.permalink}')
+@handle_exceptions
+def search_all_comments():
+    for comment in reddit.subreddit('all').stream.comments():
+        try:
+            make_comment_if_match(comment)
+        except prawcore.exceptions.Forbidden:
+            print(f'403 Forbidden when replying to: https://www.reddit.com{comment.permalink}')
+
+search_all_comments()
