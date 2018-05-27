@@ -42,12 +42,9 @@ def match(comment, end_region = 2000):
     return False
 
 def make_comment_if_match(comment):
-    if match(comment):
-        #If phrase in last 50 chars
-        if match(comment, 50):
-            comment.reply(make_sentence())
-        else:
-            comment.reply('>Let that sink in\n\n' + make_sentence())
+    #If phrase in last 50 chars
+    if match(comment, 50):
+        comment.reply(make_sentence())
 
 @handle_exceptions
 def search_all_comments():
