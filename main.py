@@ -3,6 +3,7 @@ import prawcore
 import toml
 import random
 import functools
+import time
 
 config = toml.load('config.toml')
 
@@ -19,9 +20,11 @@ def handle_exceptions(func):
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except (prawcore.exceptions.Forbidden, prawcore.exceptions.ServerError) as error:
+        except (prawcore.exceptions.Forbidden, prawcore.exceptions.ServerError, prawcore.exceptions.InvalidToken, prawcore.exceptions.ResponseException) as error:
             print(f'Error when calling {func.__name__} ({error}). Resuming...')
+            time.sleep(5)
             return wrapper(*args, **kwargs)
+
     return wrapper
 
 def make_sentence():
@@ -53,5 +56,4 @@ def search_all_comments():
             make_comment_if_match(comment)
         except prawcore.exceptions.Forbidden:
             print(f'403 Forbidden when replying to: https://www.reddit.com{comment.permalink}')
-
 search_all_comments()
